@@ -1,0 +1,1 @@
+{"question":"What is ShipSafe AI?","answer":"A small demo project combining PyTorch digit classifier + RAG over repo docs + FastAPI serving.","ground_truths":["It combines digit prediction and docs Q&A using retrieval."]}

@@ -1,0 +1,39 @@
+name: ci
+on:
+  push: { branches: ["main"] }
+  pull_request:
+
+jobs:
+  test-eval-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Smoke build index
+        run: python scripts/build_index.py
+
+      - name: RAG eval (skip RAGAS if no key)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RAG_SCORE_THRESHOLD: "0.70"
+        run: python scripts/eval_rag.py
+
+      - name: Docker build
+        run: docker build -t shipsafe-ai:ci .
+
+      - name: Upload artifacts (model + index)
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-and-index
+          path: |
+            artifacts/models/
+            artifacts/rag/
