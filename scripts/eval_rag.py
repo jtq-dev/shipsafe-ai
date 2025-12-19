@@ -1,13 +1,13 @@
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from app.rag.qa import answer_question
 
 THRESHOLD = float(os.getenv("RAG_SCORE_THRESHOLD", "0.70"))
 
-def load_gold(path="gold/gold_qa.jsonl") -> List[Dict]:
-    rows = []
+def load_gold(path: str = "gold/gold_qa.jsonl") -> List[Dict]:
+    rows: List[Dict] = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -17,11 +17,10 @@ def load_gold(path="gold/gold_qa.jsonl") -> List[Dict]:
         raise RuntimeError(f"No gold rows found in {path}")
     return rows
 
-def score_offline(rows: List[Dict]) -> (float, Dict):
+def score_offline(rows: List[Dict]) -> Tuple[float, Dict]:
     """
     Deterministic retrieval-quality score:
-    A question is a "hit" if any of the retrieved chunks' source filenames
-    match any expected_sources for that question.
+    Hit = any retrieved chunk source matches expected_sources.
     """
     hits = 0
     total = 0
@@ -37,7 +36,7 @@ def score_offline(rows: List[Dict]) -> (float, Dict):
         got_sources = [c["source"].lower() for c in out["chunks"]]
 
         total += 1
-        ok = any(any(exp in src for src in got_sources) for exp in expected)
+        ok = any(exp in src for exp in expected for src in got_sources)
         if ok:
             hits += 1
         else:
@@ -47,7 +46,7 @@ def score_offline(rows: List[Dict]) -> (float, Dict):
     detail = {"hit_rate": score, "hits": hits, "total": total, "misses_preview": misses[:3]}
     return score, detail
 
-def score_ragas(rows: List[Dict]) -> (float, Dict):
+def score_ragas(rows: List[Dict]) -> Tuple[float, Dict]:
     """
     If OPENAI_API_KEY is set, run Ragas metrics (LLM-based).
     """
@@ -63,6 +62,7 @@ def score_ragas(rows: List[Dict]) -> (float, Dict):
         gt = r.get("ground_truths") or [r.get("answer", "")]
 
         out = answer_question(q, top_k=4, use_llm=True)
+
         data["question"].append(q)
         data["answer"].append(out["answer"])
         data["contexts"].append([c["text"] for c in out["chunks"]])
@@ -90,4 +90,5 @@ if __name__ == "__main__":
 
     if score < THRESHOLD:
         raise SystemExit(f"❌ RAG quality below threshold {THRESHOLD}. Got {score}. Detail: {detail}")
+
     print("✅ RAG eval passed")
