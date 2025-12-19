@@ -1,1 +1,3 @@
-{"question":"What is ShipSafe AI?","answer":"A small demo project combining PyTorch digit classifier + RAG over repo docs + FastAPI serving.","ground_truths":["It combines digit prediction and docs Q&A using retrieval."]}
+{"question":"What is ShipSafe AI?","expected_sources":["README.md","product_overview.md"]}
+{"question":"Which endpoints exist?","expected_sources":["api_notes.md","README.md"]}
+{"question":"How does RAG indexing work?","expected_sources":["product_overview.md","README.md"]}
