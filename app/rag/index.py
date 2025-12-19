@@ -16,7 +16,10 @@ class RagIndex:
 
     def build(self, docs_dir="docs"):
         os.makedirs(INDEX_DIR, exist_ok=True)
-        docs = load_docs(docs_dir)
+        from pathlib import Path
+        docs_path = str(Path(docs_dir).resolve())
+        docs = load_docs(docs_path)
+
 
         meta = []
         texts = []
@@ -26,7 +29,8 @@ class RagIndex:
                 texts.append(c)
 
         if not texts:
-            raise RuntimeError(f"No docs found in {docs_dir} (add .md/.txt files).")
+         meta = [{"source": f"{docs_dir}/AUTO_GENERATED.md", "text": "No usable docs content was found. Add .md/.txt files with text."}]
+         texts = [meta[0]["text"]]
 
         vecs = self.model.encode(texts, normalize_embeddings=True)
         vecs = np.asarray(vecs, dtype="float32")
