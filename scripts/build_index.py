@@ -24,6 +24,7 @@ def ensure_docs_folder(docs_dir: str = "docs") -> None:
     if not has_docs:
         (d / "README.md").write_text(DEFAULT_DOC, encoding="utf-8")
 
+
 if __name__ == "__main__":
     ensure_docs_folder("docs")
     # Debug prints (helpful in CI logs)
