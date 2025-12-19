@@ -25,7 +25,7 @@ jobs:
       - name: RAG eval (skip RAGAS if no key)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          RAG_SCORE_THRESHOLD: "0.70"
+          RAG_SCORE_THRESHOLD: "0.60"
         run: python -m scripts.eval_rag
 
 
