@@ -26,7 +26,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           RAG_SCORE_THRESHOLD: "0.70"
-        run: python scripts/eval_rag.py
+        run: python -m scripts.eval_rag
+
 
       - name: Docker build
         run: docker build -t shipsafe-ai:ci .
