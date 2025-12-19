@@ -16,11 +16,18 @@ def ensure_docs_folder(docs_dir: str = "docs") -> None:
     d = Path(docs_dir)
     d.mkdir(parents=True, exist_ok=True)
 
-    has_docs = any(p.is_file() and p.suffix.lower() in {".md", ".txt"} for p in d.rglob("*"))
+    has_docs = any(
+        p.is_file() and p.suffix.lower() in {".md", ".txt"}
+        for p in d.rglob("*")
+    )
+
     if not has_docs:
         (d / "README.md").write_text(DEFAULT_DOC, encoding="utf-8")
 
 if __name__ == "__main__":
     ensure_docs_folder("docs")
+    # Debug prints (helpful in CI logs)
+    print("Docs folder exists:", Path("docs").resolve())
+    print("Docs files:", [str(p) for p in Path("docs").rglob("*") if p.is_file()])
     RAG.build("docs")
     print("✅ Built FAISS index from ./docs into artifacts/rag/")
